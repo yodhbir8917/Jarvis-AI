@@ -19,7 +19,7 @@ class JarvisScreen extends StatefulWidget {
 
 class _JarvisScreenState extends State<JarvisScreen> {
   // Yahan apni Gemini API key dalein
-  final String apiKey = "get your api";
+  final String apiKey = "AQ.Ab8RN6LdMnWCst_arNQalmKeo1Rki4IDkUVAK31QG3CIuu-Lyg";
 
   late final GenerativeModel model;
   late stt.SpeechToText _speech;
@@ -50,7 +50,7 @@ class _JarvisScreenState extends State<JarvisScreen> {
   void _initGemini() {
     try {
       model = GenerativeModel(
-        model: 'gemini-1.5-flash',
+        model: 'gemini-3.8-flash',
         apiKey: apiKey,
       );
     } catch (e) {

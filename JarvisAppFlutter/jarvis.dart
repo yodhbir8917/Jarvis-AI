@@ -50,7 +50,7 @@ class _JarvisScreenState extends State<JarvisScreen> {
   void _initGemini() {
     try {
       model = GenerativeModel(
-        model: 'gemini-3.8-flash',
+        model: 'gemini-1.5-flash',
         apiKey: apiKey,
       );
     } catch (e) {

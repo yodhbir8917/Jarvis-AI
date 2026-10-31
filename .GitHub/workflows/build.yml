@@ -1,0 +1,41 @@
+name: Build Jarvis APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Scaffold App & Insert Code
+        run: |
+          flutter create app_runner
+          cd app_runner
+          flutter pub add google_generative_ai speech_to_text flutter_tts url_launcher android_intent_plus intl audioplayers
+          cp ../JarvisAppFlutter/jarvis.dart lib/main.dart
+          sed -i 's/final String apiKey = "get your api";/final String apiKey = "${{ secrets.GEMINI_KEY }}";/g' lib/main.dart
+          sed -i 's/put-exact-model-name-here/gemini-1.5-flash/g' lib/main.dart
+          mkdir -p assets/sounds
+          touch assets/sounds/startup.mp3
+          sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 23/g' android/app/build.gradle* || true
+          flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: jarvis-apk
+          path: app_runner/build/app/outputs/flutter-apk/app-release.apk
+          

@@ -20,7 +20,7 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Scaffold App & Insert Code
+      - name: Scaffold App & Inject Permissions
         run: |
           flutter create app_runner
           cd app_runner
@@ -30,12 +30,19 @@ jobs:
           sed -i 's/put-exact-model-name-here/gemini-1.5-flash/g' lib/main.dart
           mkdir -p assets/sounds
           touch assets/sounds/startup.mp3
+
+          # Permissions aur Google Speech queries inject karna
+          MANIFEST="android/app/src/main/AndroidManifest.xml"
+          sed -i '/<manifest/a \    <uses-permission android:name="android.permission.RECORD_AUDIO"/>\n    <uses-permission android:name="android.permission.INTERNET"/>\n    <uses-permission android:name="android.permission.BLUETOOTH"/>\n    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>' $MANIFEST
+          sed -i '/<\/manifest>/i \    <queries>\n        <intent>\n            <action android:name="android.speech.RecognitionService" />\n        </intent>\n    </queries>' $MANIFEST
+
+          # Minimum SDK 23 set karna (speech_to_text ke liye zaroori hai)
           sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 23/g' android/app/build.gradle* || true
+          
           flutter build apk --release
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: jarvis-apk
+          name: jarvis-apk-fixed
           path: app_runner/build/app/outputs/flutter-apk/app-release.apk
-          
